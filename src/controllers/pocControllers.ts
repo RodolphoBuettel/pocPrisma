@@ -37,6 +37,12 @@ export async function createTask(req: Request, res: Response) {
 export async function deleteTask(req: Request, res: Response) {
     const { id } = req.params;
 
+    const taskExist = await connection.query("SELECT * FROM task WHERE id = $1", [id]);
+
+    if(!taskExist.rows[0]){
+        return res.sendStatus(400);
+    }
+
     try {
         await connection.query("DELETE FROM task WHERE id = $1", [id]);
         res.sendStatus(200);

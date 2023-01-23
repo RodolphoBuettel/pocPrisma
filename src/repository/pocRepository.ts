@@ -22,6 +22,8 @@ export async function insertTask(task: CreateTaskData, day: Date) {
 }
 
 export function returnMyTasks(responsibleId: string): Promise<QueryResult<Task>> {
+
+
     try {
         return connection.query(`
     SELECT COALESCE(count(t.id), 0) as "myTasks", r.name
