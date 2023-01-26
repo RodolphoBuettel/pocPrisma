@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model responsible {
+  id         Int          @id(map: "responsible_pk") @default(autoincrement())
+  name       String
+  task       task[]
+  taskReport taskReport[]
+}
+
+model task {
+  id            Int          @id(map: "task_pk") @default(autoincrement())
+  responsibleId Int
+  name          String
+  description   String
+  day           DateTime     @db.Date
+  status        String
+  responsible   responsible  @relation(fields: [responsibleId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "task_fk0")
+  taskReport    taskReport[]
+}
+
+model taskReport {
+  id            Int         @id(map: "taskReport_pk") @default(autoincrement())
+  description   String
+  taskId        Int
+  responsibleId Int
+  task          task        @relation(fields: [taskId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "taskReport_fk0")
+  responsible   responsible @relation(fields: [responsibleId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "taskReport_fk1")
+}
