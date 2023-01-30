@@ -1,8 +1,8 @@
 import prisma from "../database/database.js";
 import { Request, Response } from "express";
 import { ResponsibleSchema, TaksSchema } from "../models/schemas.js";
-import { CreateResponsibleData, CreateTaskData, Task } from "../protocols/pocProtocols.js";
-import {  insertResponsible, insertTask } from "../repository/pocRepository.js";
+import { CreateResponsibleData, CreateTaskData, Responsible, Task, TaskReportData } from "../protocols/pocProtocols.js";
+import { insertResponsible, insertTask } from "../repository/pocRepository.js";
 
 
 export async function createResponsible(req: Request, res: Response) {
@@ -38,20 +38,20 @@ export async function deleteTask(req: Request, res: Response) {
     const { id } = req.params;
     const taskExist = await prisma.task.findUnique({
         where: {
-          id: Number(id),
+            id: Number(id),
         },
-      })
+    })
 
-    if(!taskExist){
+    if (!taskExist) {
         return res.sendStatus(404);
     }
 
     try {
         await prisma.task.delete({
             where: {
-              id: Number(id),
+                id: Number(id),
             },
-          });
+        });
         res.sendStatus(200);
     } catch (err) {
         console.log(err);
@@ -64,13 +64,13 @@ export async function uptadeTask(req: Request, res: Response) {
     try {
         await prisma.task.update({
             where: {
-              id: Number(id)
+                id: Number(id)
             },
             data: {
-              status: status,
+                status: status,
             },
-          })
-      res.sendStatus(200);
+        })
+        res.sendStatus(200);
     } catch (err) {
         console.log(err);
     }
@@ -114,9 +114,44 @@ export async function myTask(req: Request, res: Response) {
         where: {
             id: Number(id)
         },
-      })
+    })
     if (!uniqueTask) {
         return res.sendStatus(404);
     }
     res.send(uniqueTask);
+}
+
+export async function createTaskReport(req: Request, res: Response) {
+    const {taskId, responsibleId, description} = req.body as TaskReportData;
+
+    try{
+        await prisma.taskReport.create({
+            data: {
+                description: description,
+                taskId: taskId,
+                responsibleId: responsibleId
+            },
+        })
+        res.sendStatus(200);
+    } catch(error){
+        console.log(error);
+    }
+}
+
+export async function myReport(req: Request, res: Response) {
+    const { id } = req.body as Responsible;
+
+    const myReports = await prisma.responsible.findMany({
+        where: {
+            id: id
+        }, 
+        include: {
+            taskReport: {
+                where: {
+                    responsibleId: id
+                }
+            }
+        }
+    })
+    res.send(myReports);
 }

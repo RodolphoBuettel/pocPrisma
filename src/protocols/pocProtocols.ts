@@ -14,3 +14,12 @@ export type Task = {
 };
 
 export type CreateTaskData = Omit<Task, "id">;
+
+export type TaskReport = {
+    id: number;
+    description: string;
+    taskId: number;
+    responsibleId: number;
+};
+
+export type TaskReportData = Omit<TaskReport, "id">;
